@@ -36,9 +36,14 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔍 Check MongoDB Connection
+      - name: 🔍 Install MongoDB Shell and Check Connection
         run: |
-          sudo apt-get install -y mongodb-clients
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-org-shell
           mongosh --host localhost --eval "db.runCommand({ ping: 1 })"
 
       - name: 🛠️ Run Code Checks (ESLint + Tests)
