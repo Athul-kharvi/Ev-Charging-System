@@ -1,30 +1,49 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Asset = require('./models');
+const Asset = require("./models"); // Import Asset Model
 
-// Create Asset
-router.post('/', async (req, res) => {
-  const asset = new Asset(req.body);
-  await asset.save();
-  res.status(201).send(asset);
+// ➤ Create Asset
+router.post("/", async (req, res) => {
+  try {
+    const asset = new Asset(req.body);
+    await asset.save();
+    res.status(201).json(asset);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
-// Read Assets
-router.get('/', async (req, res) => {
-  const assets = await Asset.find();
-  res.send(assets);
+// ➤ Read All Assets
+router.get("/", async (req, res) => {
+  try {
+    const assets = await Asset.find();
+    res.json(assets);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Update Asset
-router.put('/:id', async (req, res) => {
-  const asset = await Asset.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.send(asset);
+// ➤ Update Asset
+router.put("/:id", async (req, res) => {
+  try {
+    const asset = await Asset.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!asset) return res.status(404).json({ error: "Asset not found" });
+    res.json(asset);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
-// Delete Asset
-router.delete('/:id', async (req, res) => {
-  await Asset.findByIdAndDelete(req.params.id);
-  res.send({ message: 'Asset deleted' });
+// ➤ Delete Asset
+router.delete("/:id", async (req, res) => {
+  try {
+    const asset = await Asset.findByIdAndDelete(req.params.id);
+    if (!asset) return res.status(404).json({ error: "Asset not found" });
+    res.json({ message: "Asset deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;
+  

@@ -1,10 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const AssetSchema = new mongoose.Schema({
-  name: String,
-  type: String,  // Location, Charge Station, Charge Point, Connector
-  status: String,
-  location: String
+  name: { type: String, required: true },
+  type: { type: String, enum: ["Location", "Charge Station", "Charge Point", "Connector"], required: true },
+  status: { type: String, required: true },
+  location: { type: String, required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Asset', AssetSchema);
+const Asset = mongoose.model("Asset", AssetSchema);
+
+module.exports = Asset;
