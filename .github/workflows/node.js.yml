@@ -36,7 +36,13 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔍 Install MongoDB Shell and Check Connection
+      - name: 🛠 Debug MongoDB Service
+        run: |
+          docker ps -a
+          sudo journalctl -u mongod --no-pager || echo "No MongoDB logs found"
+          sudo systemctl status mongod || echo "MongoDB service not found"
+
+      - name: 🔍 Install MongoDB Shell
         run: |
           sudo apt-get update
           sudo apt-get install -y wget gnupg
@@ -52,9 +58,12 @@ jobs:
           # Verify mongosh installation
           which mongosh
           ls -lah /usr/bin/mongosh
-          
-          # Check MongoDB connection
-          /usr/bin/mongosh --host localhost --eval "db.runCommand({ ping: 1 })"
+
+      - name: 🔄 Ensure MongoDB is Running
+        run: |
+          sudo systemctl start mongod || sudo service mongod start
+          sleep 5
+          mongosh --host localhost --eval "db.runCommand({ ping: 1 })"
 
       - name: 🛠️ Run Code Checks (ESLint + Tests)
         run: ./checkmycode.sh
