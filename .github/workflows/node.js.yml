@@ -1,69 +1,60 @@
-name: Node.js CI with MongoDB
+name: Run Tests with MongoDB
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    services:
-      mongodb:
-        image: mongo:6.0
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+        mongodb-version: ['6.0', '7.0', '8.0']
 
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v3
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
 
-      - name: 🔧 Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
+    - name: 🔧 Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
 
-      - name: 📦 Install dependencies
-        run: npm ci
+    - name: 🚀 Start MongoDB ${{ matrix.mongodb-version }}
+      uses: supercharge/mongodb-github-action@1.12.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
 
-      - name: 🛠 Debug MongoDB Service
-        run: |
-          docker ps -a
-          sudo journalctl -u mongod --no-pager || echo "No MongoDB logs found"
-          sudo systemctl status mongod || echo "MongoDB service not found"
+    - name: 🛠 Debug MongoDB Service
+      run: |
+        docker ps -a
+        sudo journalctl -u mongod --no-pager || echo "No MongoDB logs found"
+        sudo systemctl status mongod || echo "MongoDB service not found"
 
-      - name: 🔍 Install MongoDB Shell
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-org-shell
-          
-          # Ensure mongosh is in PATH
-          echo "export PATH=/usr/bin:$PATH" >> ~/.bashrc
-          source ~/.bashrc
-          
-          # Verify mongosh installation
-          which mongosh
-          ls -lah /usr/bin/mongosh
+    - name: 🔍 Install MongoDB Shell (mongosh)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget gnupg
+        wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+        echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+        sudo apt-get update
+        sudo apt-get install -y mongodb-org-shell
 
-      - name: 🔄 Ensure MongoDB is Running
-        run: |
-          sudo systemctl start mongod || sudo service mongod start
-          sleep 5
-          mongosh --host localhost --eval "db.runCommand({ ping: 1 })"
+        # Ensure mongosh is in PATH
+        echo "export PATH=/usr/bin:$PATH" >> ~/.bashrc
+        source ~/.bashrc
 
-      - name: 🛠️ Run Code Checks (ESLint + Tests)
-        run: ./checkmycode.sh
+        # Verify mongosh installation
+        which mongosh
+        ls -lah /usr/bin/mongosh
+
+    - name: 🔄 Ensure MongoDB is Running
+      run: |
+        mongosh --host localhost --eval "db.runCommand({ ping: 1 })"
+
+    - name: 📦 Install Dependencies
+      run: npm install
+
+    - name: 🛠 Run Tests
+      run: npm test
+      env:
+        CI: true
