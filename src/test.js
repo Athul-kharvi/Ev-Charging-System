@@ -37,14 +37,15 @@ describe("Asset API Tests", () => {
 
     console.log("Response Status:", res.status);
     console.log("Response Body:", res.body);
-    chai.expect(res.status).to.equal(201);
-    chai.expect(res.body).to.have.property("_id");
+
+    res.status.should.equal(201);
+    res.body.should.have.property("_id");
   });
 
   it("should retrieve all assets", async () => {
     const res = await request(app).get("/api/assets");
 
-    chai.expect(res.status).to.equal(200);
-    chai.expect(res.body).to.be.an("array");
+    res.status.should.equal(200);
+    res.body.should.be.an("array");
   });
 });
