@@ -2,6 +2,7 @@ require("dotenv").config(); // Load .env variables
 
 const express = require("express");
 const mongoose = require("mongoose");
+// const assetRoutes = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,3 +35,6 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+
+
+module.exports = app;
