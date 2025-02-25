@@ -1,4 +1,4 @@
-require("dotenv").config(); // Load .env variables
+require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 const isCI = process.env.CI === "true";
 const MONGO_URI = isCI
-  ? "mongodb://127.0.0.1:27017/test" 
+  ? "mongodb://127.0.0.1:27017/test"
   : "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
 
 // Middleware

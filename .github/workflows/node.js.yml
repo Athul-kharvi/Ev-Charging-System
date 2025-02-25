@@ -1,9 +1,9 @@
-name: Run Tests with MongoDB
+name: Run Tests with MongoDB Memory Server
 
 on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,8 +21,10 @@ jobs:
     - name: 📦 Install Dependencies
       run: npm install
 
-    - name: 🏗 Run Code Check
+    - name: 🛠 Run Code Check
       run: bash checkmycode.sh
+
+    - name: 🧪 Run Tests with MongoDB Memory Server
+      run: npm test
       env:
         CI: true
-        MONGO_URI: "mongodb://127.0.0.1:27017/test" 

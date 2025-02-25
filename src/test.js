@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const request = require("supertest");
-const { expect } = require("chai");
+const chai = require("chai");
 const app = require("./index");
+
+chai.should();
 
 let mongoServer;
 
@@ -35,14 +37,14 @@ describe("Asset API Tests", () => {
 
     console.log("Response Status:", res.status);
     console.log("Response Body:", res.body);
-    expect(res.status).to.equal(201);
-    expect(res.body).to.have.property("_id");
+    chai.expect(res.status).to.equal(201);
+    chai.expect(res.body).to.have.property("_id");
   });
 
   it("should retrieve all assets", async () => {
     const res = await request(app).get("/api/assets");
 
-    expect(res.status).to.equal(200);
-    expect(res.body).to.be.an("array");
+    chai.expect(res.status).to.equal(200);
+    chai.expect(res.body).to.be.an("array");
   });
 });
