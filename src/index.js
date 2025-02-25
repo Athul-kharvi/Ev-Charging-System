@@ -2,23 +2,21 @@ require("dotenv").config(); // Load .env variables
 
 const express = require("express");
 const mongoose = require("mongoose");
-// const assetRoutes = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-// const MONGO_URI = process.env.MONGO_URI;
-const MONGO_URI = "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000"; // Replace with your MongoDB URI
 
+const isCI = process.env.CI === "true";
+const MONGO_URI = isCI
+  ? "mongodb://127.0.0.1:27017/test" 
+  : "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
 
 // Middleware
 app.use(express.json());
 
 // Connect to MongoDB
 mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
@@ -35,6 +33,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-
 
 module.exports = app;

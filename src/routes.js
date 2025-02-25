@@ -26,7 +26,9 @@ router.get("/", async (req, res) => {
 // ➤ Update Asset
 router.put("/:id", async (req, res) => {
   try {
-    const asset = await Asset.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const asset = await Asset.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     if (!asset) return res.status(404).json({ error: "Asset not found" });
     res.json(asset);
   } catch (error) {
@@ -46,4 +48,3 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
-  

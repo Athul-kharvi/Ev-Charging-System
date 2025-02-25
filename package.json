@@ -2,18 +2,22 @@
   "name": "ev-charging-system",
   "version": "1.0.0",
   "description": "- **EMSP (E-Mobility Service Provider):** a company that provides access to electric vehicle (EV) charging services to EV drivers through digital platforms or applications.\r - **CPO (Charge Point Operator):** Responsible for operating and maintaining charging stations,  an entity responsible for building, operating, and maintaining electric vehicle        (EV)  charging infrastructure.\r - **Charge Point Owner:** Owns the charging infrastructure.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require chai/register-should src/test.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chai": "^5.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "mocha": "^11.1.0",
+    "mongodb-memory-server": "^10.1.4",
     "mongoose": "^8.10.1",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
   }
 }
