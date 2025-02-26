@@ -15,20 +15,17 @@ async function loadChai() {
 // Setup MongoDB in-memory server before tests
 before(async function () {
   this.timeout(60000); // Extend timeout for DB initialization
-
   await loadChai();
-
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.disconnect();
-  }
 
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
+
+  await mongoose.disconnect();
   await mongoose.connect(uri);
 });
 
 // Cleanup after tests
-after(async () => {
+after(async function () {
   await mongoose.disconnect();
   if (mongoServer) {
     await mongoServer.stop();
