@@ -3,35 +3,33 @@ const { MongoMemoryServer } = require("mongodb-memory-server");
 const request = require("supertest");
 const app = require("./index.js"); // Ensure correct path to your Express app
 
-let chai;
+let mongoServer;
 
+// Load Chai dynamically for assertion
+let chai;
 async function loadChai() {
   chai = await import("chai");
   chai.should(); // Initialize Chai "should" assertion style
 }
 
-let mongoServer;
-
-// Before all tests, start in-memory MongoDB and connect
+// Setup MongoDB in-memory server before tests
 before(async function () {
-  this.timeout(10000); // Increase timeout for MongoDB startup if needed
+  this.timeout(20000); // Allow time for MongoDB to start
 
-  await loadChai(); // Load Chai dynamically
+  await loadChai();
 
   if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
   }
 
+  // Start MongoDB Memory Server
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
 
-  await mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.connect(mongoUri);
 });
 
-// After all tests, disconnect and stop in-memory database
+// Cleanup after tests
 after(async () => {
   await mongoose.disconnect();
   if (mongoServer) {
@@ -41,15 +39,19 @@ after(async () => {
 
 describe("Asset API Tests", () => {
   it("should create a new asset", async () => {
-    const res = await request(app).post("/api/assets").send({
+    const assetData = {
       name: "EV Charging Hub",
       type: "Charge Station",
       status: "Active",
       location: "New York",
-    });
+    };
 
-    console.log("Response Status:", res.status);
-    console.log("Response Body:", res.body);
+    const res = await request(app).post("/api/assets").send(assetData);
+
+    // Debugging output for failed cases
+    if (res.status !== 201) {
+      console.error("Failed Response:", res.body);
+    }
 
     res.status.should.equal(201);
     res.body.should.have.property("_id");
@@ -57,6 +59,11 @@ describe("Asset API Tests", () => {
 
   it("should retrieve all assets", async () => {
     const res = await request(app).get("/api/assets");
+
+    // Debugging output for failed cases
+    if (res.status !== 200) {
+      console.error("Failed Response:", res.body);
+    }
 
     res.status.should.equal(200);
     res.body.should.be.an("array");
