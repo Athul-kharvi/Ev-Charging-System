@@ -14,7 +14,7 @@ async function loadChai() {
 
 // Setup MongoDB in-memory server before tests
 before(async function () {
-  this.timeout(20000); // Allow time for MongoDB to start
+  this.timeout(30000); // Allow time for MongoDB to start
 
   await loadChai();
 
@@ -23,17 +23,32 @@ before(async function () {
   }
 
   // Start MongoDB Memory Server
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
+  try {
+    mongoServer = await MongoMemoryServer.create({
+      binary: { version: "7.0.0" }, // Ensure compatible MongoDB binary version
+    });
+    const mongoUri = mongoServer.getUri();
 
-  await mongoose.connect(mongoUri);
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+  } catch (error) {
+    console.error("❌ MongoDB Memory Server failed to start:", error);
+    throw error;
+  }
 });
 
 // Cleanup after tests
-after(async () => {
-  await mongoose.disconnect();
-  if (mongoServer) {
-    await mongoServer.stop();
+after(async function () {
+  this.timeout(10000); // Increase timeout for cleanup
+  try {
+    await mongoose.disconnect();
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+  } catch (error) {
+    console.error("❌ Error during teardown:", error);
   }
 });
 
