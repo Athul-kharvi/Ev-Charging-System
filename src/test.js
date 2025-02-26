@@ -1,14 +1,23 @@
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const request = require("supertest");
-const chai = require("chai");
-const app = require("./index");
+const app = require("./index.js"); // Ensure correct path to your Express app
 
-chai.should();
+let chai;
+
+async function loadChai() {
+  chai = await import("chai");
+  chai.should(); // Initialize Chai "should" assertion style
+}
 
 let mongoServer;
 
-before(async () => {
+// Before all tests, start in-memory MongoDB and connect
+before(async function () {
+  this.timeout(10000); // Increase timeout for MongoDB startup if needed
+
+  await loadChai(); // Load Chai dynamically
+
   if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
   }
@@ -16,9 +25,13 @@ before(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
 
-  await mongoose.connect(mongoUri);
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 });
 
+// After all tests, disconnect and stop in-memory database
 after(async () => {
   await mongoose.disconnect();
   if (mongoServer) {
