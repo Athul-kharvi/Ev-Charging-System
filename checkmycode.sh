@@ -13,7 +13,7 @@ fi
 
 # Step 2: Run ESLint for code quality and auto-fix issues
 echo "🔍 Running ESLint..."
-npx eslint src/ --fix
+npx eslint --fix .
 
 # Step 3: Check formatting with Prettier
 echo "🎨 Checking formatting..."
