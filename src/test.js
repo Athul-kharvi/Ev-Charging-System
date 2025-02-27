@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const request = require("supertest");
-const app = require("./index.js"); // Ensure correct path to your Express app
+const app = require("../app.js"); // Ensure correct path to your Express app
 
 let mongoServer;
 
