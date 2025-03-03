@@ -19,9 +19,10 @@ npx eslint --fix .
 echo "🎨 Checking formatting..."
 npx prettier --check "src/**/*.js"
 
-# Step 4: Check for code duplication
 echo "🔁 Checking for duplicate code..."
-npx jscpd --min-lines 3 --min-tokens 25 --threshold 0 --gitignore .
+npx jscpd --min-lines 3 --min-tokens 25 --threshold 0 --gitignore --ignore "node_modules,dist,coverage,build" .
+
+
 
 # Step 5: Run security audit
 echo "🛡️ Running security audit..."
