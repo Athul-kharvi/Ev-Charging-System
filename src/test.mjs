@@ -1,13 +1,10 @@
-const request = require("supertest");
-const mongoose = require("mongoose");
-const { server } = require("../app");
-require("dotenv").config();
+import * as chai from "chai"; // Correct way to import chai in ESM
+import request from "supertest";
+import mongoose from "mongoose";
+import { server } from "../app.js";
+import "dotenv/config";
 
-let expect;
-
-// Dynamically import Chai (since it's now an ES module)
-const chai = await import("chai");
-expect = chai.expect;
+const { expect } = chai; // Destructure `expect` from chai
 
 describe("API Tests", function () {
   let ids = {};
