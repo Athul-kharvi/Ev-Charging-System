@@ -3,8 +3,13 @@ const mongoose = require("mongoose");
 const { server } = require("../app");
 require("dotenv").config();
 
-const chai = require("chai");
-const expect = chai.expect;
+let expect;
+
+// Dynamically import Chai (since it's now an ES module)
+(async () => {
+  const chai = await import("chai");
+  expect = chai.expect;
+})();
 
 describe("API Tests", function () {
   let ids = {};
