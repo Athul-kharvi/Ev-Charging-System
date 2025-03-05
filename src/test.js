@@ -9,16 +9,6 @@ const expect = chai.expect;
 describe("API Tests", function () {
   let ids = {};
 
-  before(async function () {
-    // Ensure database is connected before tests start
-    if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-    }
-  });
-
   after(async function () {
     await mongoose.connection.close();
     server.close();
@@ -175,37 +165,27 @@ describe("API Tests", function () {
     },
   ];
 
-  testCases.forEach(
-    ({
-      description,
-      method = "get",
-      endpoint,
-      payload,
-      expectedStatus,
-      expectedProps = {},
-      storeIdKey,
-      beforeTest = async () => {},
-      afterTest = async () => {},
-    }) => {
-      it(description, async function () {
-        if (beforeTest) await beforeTest();
-
-        await testApi({
-          method,
-          endpoint: typeof endpoint === "function" ? endpoint() : endpoint,
-          payload: typeof payload === "function" ? payload() : payload,
-          expectedStatus,
-          expectedProps: Object.fromEntries(
-            Object.entries(expectedProps).map(([key, value]) => [
-              key,
-              typeof value === "function" ? value() : value,
-            ]),
-          ),
-          storeIdKey,
-        });
-
-        if (afterTest) await afterTest();
+  testCases.forEach(({ description, beforeTest, afterTest, ...testCase }) => {
+    it(description, async function () {
+      if (beforeTest) await beforeTest();
+      await testApi({
+        ...testCase,
+        endpoint:
+          typeof testCase.endpoint === "function"
+            ? testCase.endpoint()
+            : testCase.endpoint,
+        payload:
+          typeof testCase.payload === "function"
+            ? testCase.payload()
+            : testCase.payload,
+        expectedProps: Object.fromEntries(
+          Object.entries(testCase.expectedProps || {}).map(([key, value]) => [
+            key,
+            typeof value === "function" ? value() : value,
+          ]),
+        ),
       });
-    },
-  );
+      if (afterTest) await afterTest();
+    });
+  });
 });
