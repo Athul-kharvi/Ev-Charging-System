@@ -41,8 +41,26 @@ describe("API Tests", function () {
   }
 
   const invalidId = new mongoose.Types.ObjectId(); // Random non-existing ID
-
+  // const originalReadyState = mongoose.connection.readyState;
   const testCases = [
+    {
+      description: "should return 500 when MongoDB is disconnected",
+      endpoint: "/api/pingdb",
+      expectedStatus: 500,
+      expectedProps: { message: "❌ MongoDB Not Connected" },
+
+      beforeTest: async () => {
+        // Ensure MongoDB is disconnected before running the test
+        await mongoose.disconnect(); // Properly disconnect from MongoDB
+      },
+
+      afterTest: async () => {
+        await mongoose.connect(process.env.MONGO_URI, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        }); // Reconnect to MongoDB
+      },
+    },
     {
       description: "should connect to MongoDB successfully",
       endpoint: "/api/pingdb",
@@ -158,8 +176,12 @@ describe("API Tests", function () {
       expectedStatus,
       expectedProps = {},
       storeIdKey,
+      beforeTest = async () => {},
+      afterTest = async () => {},
     }) => {
       it(description, async function () {
+        if (beforeTest) await beforeTest();
+
         await testApi({
           method,
           endpoint: typeof endpoint === "function" ? endpoint() : endpoint,
@@ -173,6 +195,7 @@ describe("API Tests", function () {
           ),
           storeIdKey,
         });
+        if (afterTest) await afterTest();
       });
     },
   );

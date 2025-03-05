@@ -16,26 +16,29 @@ const MONGO_URI = isCI
 // Middleware
 app.use(express.json());
 
-// Connect to MongoDB
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
-  // .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+// // Connect to MongoDB
+
 
 // Routes
 const assetRoutes = require("./src/routes");
 app.use("/api/assets", assetRoutes);
 
 
+const getMongoDBStatus = () => mongoose.connection.readyState === 1;
+
+// API Route to check DB connection
 app.get("/api/pingdb", (req, res) => {
-  const isConnected = mongoose.connection.readyState === 1; // 1 means connected
-  if (isConnected) {
+  if (getMongoDBStatus()) {
     res.status(200).json({ message: "✅ MongoDB Connected" });
-  } 
-  // else {
-  //   res.status(500).json({ message: "❌ MongoDB Not Connected" });
-  // }
+  } else {
+    res.status(500).json({ message: "❌ MongoDB Not Connected" });
+  }
 });
+
+// Connect to MongoDB
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
 
 // Root Route
 app.get("/", (req, res) => {
