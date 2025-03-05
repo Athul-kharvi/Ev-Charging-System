@@ -6,8 +6,8 @@ require("dotenv").config();
 let expect;
 
 // Dynamically import Chai (since it's now an ES module)
-  const chai = await import("chai");
-  expect = chai.expect;
+const chai = await import("chai");
+expect = chai.expect;
 
 describe("API Tests", function () {
   let ids = {};
