@@ -1,16 +1,27 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
+const { server } = require("../app");
+require("dotenv").config();
+
 const chai = require("chai");
 const expect = chai.expect;
-const { server } = require("../app"); // Import the server, not just app
-require("dotenv").config();
 
 describe("API Tests", function () {
   let ids = {};
 
+  before(async function () {
+    // Ensure database is connected before tests start
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(process.env.MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    }
+  });
+
   after(async function () {
     await mongoose.connection.close();
-    server.close(); // Ensure server shuts down after tests
+    server.close();
     console.log("MongoDB connection and server closed.");
   });
 
@@ -41,24 +52,21 @@ describe("API Tests", function () {
   }
 
   const invalidId = new mongoose.Types.ObjectId(); // Random non-existing ID
-  // const originalReadyState = mongoose.connection.readyState;
+
   const testCases = [
     {
       description: "should return 500 when MongoDB is disconnected",
       endpoint: "/api/pingdb",
       expectedStatus: 500,
       expectedProps: { message: "❌ MongoDB Not Connected" },
-
       beforeTest: async () => {
-        // Ensure MongoDB is disconnected before running the test
-        await mongoose.disconnect(); // Properly disconnect from MongoDB
+        await mongoose.disconnect();
       },
-
       afterTest: async () => {
         await mongoose.connect(process.env.MONGO_URI, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
-        }); // Reconnect to MongoDB
+        });
       },
     },
     {
@@ -195,6 +203,7 @@ describe("API Tests", function () {
           ),
           storeIdKey,
         });
+
         if (afterTest) await afterTest();
       });
     },
