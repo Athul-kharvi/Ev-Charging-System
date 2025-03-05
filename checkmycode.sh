@@ -30,7 +30,7 @@ npm audit
 
 # Step 6: Run tests using Mocha (or your preferred test framework)
 echo "🧪 Running Tests..."
-npx nyc --all --reporter=html --reporter=text npm test
+npx nyc --all --reporter=html --reporter=text --exclude=eslint.config.js --exclude=config/** --exclude=coverage/** npm test
 
 # Step 7: Check test coverage
 echo "📊 Checking test coverage..."

@@ -8,10 +8,7 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-const isCI = process.env.CI === "true";
-const MONGO_URI = isCI
-  ? "mongodb://127.0.0.1:27017/test"
-  : "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
+const MONGO_URI = "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
 
 // Middleware
 app.use(express.json());
