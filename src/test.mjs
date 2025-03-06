@@ -4,7 +4,9 @@ import mongoose from "mongoose";
 import { server } from "../app.js";
 import "dotenv/config";
 
-const { expect } = chai; // Destructure `expect` from chai
+const { expect } = chai;
+let mongoUri =
+  "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
 
 describe("API Tests", function () {
   let ids = {};
@@ -42,16 +44,6 @@ describe("API Tests", function () {
   }
 
   const invalidId = new mongoose.Types.ObjectId(); // Random non-existing ID
-  let mongoServer;
-  const isMemoryServer = !process.env.MONGO_URI; // Use memory server if no MONGO_URI
-
-  const getMongoUri = async () => {
-    if (isMemoryServer) {
-      mongoServer = await MongoMemoryServer.create();
-      return mongoServer.getUri();
-    }
-    return process.env.MONGO_URI;
-  };
 
   const testCases = [
     {
@@ -59,18 +51,31 @@ describe("API Tests", function () {
       endpoint: "/api/pingdb",
       expectedStatus: 500,
       expectedProps: { message: "❌ MongoDB Not Connected" },
+
       beforeTest: async () => {
-        await mongoose.connection.dropDatabase();
-      await mongoose.connection.close();
-      if (isMemoryServer && mongoServer) await mongoServer.stop();
-      await mongoose.disconnect();
+        if (mongoose.connection.readyState !== 0) {
+          await mongoose.connection.dropDatabase();
+          await mongoose.connection.close();
+          console.log("🛑 MongoDB Disconnected");
+        }
+
+        if (process.env.GITHUB_ACTIONS === "true" && mongoServer) {
+          await mongoServer.stop();
+          console.log("🛑 In-Memory MongoDB Stopped (GitHub Actions)");
+        }
       },
+
       afterTest: async () => {
-        const mongoUri = await getMongoUri();
-        await mongoose.connect(mongoUri, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        });
+        if (process.env.GITHUB_ACTIONS === "true") {
+          mongoServer = await MongoMemoryServer.create();
+          mongoUri = mongoServer.getUri();
+          console.log("✅ Reconnecting to MongoDB in Memory (GitHub Actions)");
+        } else {
+          mongoUri = process.env.MONGO_URI;
+          console.log(`✅ Reconnecting to Local MongoDB: ${mongoUri}`);
+        }
+
+        await mongoose.connect(mongoUri);
       },
     },
     {
