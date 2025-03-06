@@ -2,11 +2,15 @@ import * as chai from "chai"; // Correct way to import chai in ESM
 import request from "supertest";
 import mongoose from "mongoose";
 import { server } from "../app.js";
+import { MongoMemoryServer } from "mongodb-memory-server";
+
 import "dotenv/config";
 
 const { expect } = chai;
-let mongoUri =
-  "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
+// let mongoUri =
+//   "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
+let mongoServer; // ✅ Declare globally
+let mongoUri;
 
 describe("API Tests", function () {
   let ids = {};
