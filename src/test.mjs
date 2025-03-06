@@ -42,6 +42,16 @@ describe("API Tests", function () {
   }
 
   const invalidId = new mongoose.Types.ObjectId(); // Random non-existing ID
+  let mongoServer;
+  const isMemoryServer = !process.env.MONGO_URI; // Use memory server if no MONGO_URI
+
+  const getMongoUri = async () => {
+    if (isMemoryServer) {
+      mongoServer = await MongoMemoryServer.create();
+      return mongoServer.getUri();
+    }
+    return process.env.MONGO_URI;
+  };
 
   const testCases = [
     {
@@ -50,10 +60,14 @@ describe("API Tests", function () {
       expectedStatus: 500,
       expectedProps: { message: "❌ MongoDB Not Connected" },
       beforeTest: async () => {
-        await mongoose.disconnect();
+        await mongoose.connection.dropDatabase();
+      await mongoose.connection.close();
+      if (isMemoryServer && mongoServer) await mongoServer.stop();
+      await mongoose.disconnect();
       },
       afterTest: async () => {
-        await mongoose.connect(process.env.MONGO_URI, {
+        const mongoUri = await getMongoUri();
+        await mongoose.connect(mongoUri, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
         });
