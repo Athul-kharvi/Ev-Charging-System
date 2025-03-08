@@ -4,11 +4,18 @@
   "description": "- **EMSP (E-Mobility Service Provider):** a company that provides access to electric vehicle (EV) charging services to EV drivers through digital platforms or applications.\r - **CPO (Charge Point Operator):** Responsible for operating and maintaining charging stations,  an entity responsible for building, operating, and maintaining electric vehicle        (EV)  charging infrastructure.\r - **Charge Point Owner:** Owns the charging infrastructure.",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha src/test.mjs --exit"
+    "test": "mocha tests/test.mjs --exit"
   },
   "nyc": {
+    "all": true,
+    "include": [
+      "src/**/*.js"
+    ],
     "exclude": [
-      "src/test.mjs"
+      "tests/**",
+      "**/*.test.js",
+      "**/*.spec.js",
+      "test.mjs"
     ]
   },
   "keywords": [],
