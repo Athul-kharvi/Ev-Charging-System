@@ -25,15 +25,15 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongodb-memory-server": "^10.1.4",
-    "mongoose": "^8.10.1",
-    "supertest": "^7.0.0"
+    "mongoose": "^8.10.1"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^10.1.4",
     "chai": "^5.2.0",
     "esm": "^3.2.25",
     "mocha": "^11.1.0",
     "nodemon": "^3.1.9",
-    "nyc": "^17.1.0"
+    "nyc": "^17.1.0",
+    "supertest": "^7.0.0"
   }
 }
