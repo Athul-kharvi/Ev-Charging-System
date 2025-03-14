@@ -3,23 +3,17 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 
-
-
-
 const app = express();
 
-const MONGO_URI = "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
+const MONGO_URI =
+  "mongodb://127.0.0.1:27017/mongosh?directConnection=true&serverSelectionTimeoutMS=2000";
 
 // Middleware
 app.use(express.json());
 
-// // Connect to MongoDB
-
-
 // Routes
 const assetRoutes = require("./src/routes");
 app.use("/api/assets", assetRoutes);
-
 
 const getMongoDBStatus = () => mongoose.connection.readyState === 1;
 
@@ -33,15 +27,12 @@ app.get("/api/pingdb", (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected"))
+mongoose.connect(MONGO_URI).then(() => console.log("✅ MongoDB Connected"));
 
 // Root Route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the EV Charging System API!" });
 });
-
 
 // Start Server
 const server = app.listen(3000, () => {

@@ -46,9 +46,7 @@ const createCrudRoutes = (model, modelName) => {
       const updatedItem = await model.findByIdAndUpdate(
         req.params.id,
         req.body,
-        {
-          new: true,
-        },
+        { new: true },
       );
       if (!updatedItem)
         return res.status(404).json({ error: `${modelName} not found` });
@@ -66,6 +64,20 @@ const createCrudRoutes = (model, modelName) => {
       res.status(200).json({ message: `${modelName} deleted` });
     }),
   );
+  router.get(
+    "/chargepoints/:stationId",
+    asyncHandler(async (req, res) => {
+      const { stationId } = req.params;
+      console.log("charge station one to one");
+      console.log("Fetching charge points for station ID:", stationId); // Debugging log
+
+      const chargePoints = await ChargePoint.find({ chargeStation: stationId });
+
+      console.log("Charge Points Found:", chargePoints); // Log the results
+
+      res.status(200).json({ data: chargePoints });
+    }),
+  );
 };
 
 // ✅ Register CRUD routes for each model
@@ -73,5 +85,7 @@ createCrudRoutes(Location, "Location");
 createCrudRoutes(ChargeStation, "ChargeStation");
 createCrudRoutes(ChargePoint, "ChargePoint");
 createCrudRoutes(Connector, "Connector");
+
+// ✅ Custom route: Get all charge points for a given charge station
 
 module.exports = router;

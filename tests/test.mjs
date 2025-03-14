@@ -3,22 +3,23 @@ import request from "supertest";
 import mongoose from "mongoose";
 import { server } from "../app.js";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import { Location, ChargeStation, ChargePoint } from "../src/models.js"; // Correct model import
 
 import "dotenv/config";
 
 const { expect } = chai;
 
-let mongoServer; 
+let mongoServer;
 let mongoUri;
 
 describe("API Tests", function () {
   let ids = {};
 
-  after(async function () {
-    await mongoose.connection.close();
-    server.close();
-    console.log("MongoDB connection and server closed.");
-  });
+  // after(async function () {
+  //   await mongoose.connection.close();
+  //   server.close();
+  //   console.log("MongoDB connection and server closed.");
+  // });
 
   async function testApi({
     method = "get",
@@ -184,6 +185,12 @@ describe("API Tests", function () {
       }),
       expectedStatus: 201,
       storeIdKey: "connectorId",
+    },
+    {
+      description: "should get all ChargePoints for the created ChargeStation",
+      method: "get",
+      endpoint: () => `/api/assets/chargepoints/${ids.stationId}`,
+      expectedStatus: 200,
     },
   ];
 
